@@ -8,7 +8,7 @@ var ChatSchema = new mongoose.Schema({
   message: String,
   timestamp_created: {type:Date, default: Date.now},
   timestamp_updated: {type:Date, default: Date.now},
-  participant: [String],
+  participant: Array,
   group: Boolean
 })
 

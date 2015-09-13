@@ -7,8 +7,15 @@ module.exports = {
 
     if(!messageData) {
       console.log('messageData is undefined')
-      res.sendStatus(400);
+      res.sendStatus(400).json({error: "Bad Request"});
       return;
+    } else {
+      var messageId = req.body.messageId;
+      var author = req.body.author;
+      var message = req.body.message;
+      var timestamp_created: req.body.timestamp_created;
+      var timestamp_updated: req.body.timestamp_updated;
+      
     }
 
     Chat.findOne({ messageId: messageData.id })
@@ -28,3 +35,13 @@ module.exports = {
     console.log('inside getMessage in chatController.js');
   }
 };
+
+// var ChatSchema = new mongoose.Schema({
+//   messageId: String,
+//   author: String,
+//   message: String,
+//   timestamp_created: {type:Date, default: Date.now},
+//   timestamp_updated: {type:Date, default: Date.now},
+//   participant: Array,
+//   group: Boolean
+// })
