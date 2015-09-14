@@ -2,6 +2,8 @@ var mongoose = require('mongoose');
 var Promise = require('bluebird');
 var _ = require('underscore');
 
+
+
 var UserChatSchema = new mongoose.Schema({
   userId: String,
   chatId_all: Array,

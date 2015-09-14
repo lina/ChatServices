@@ -1,5 +1,7 @@
 var userChatsController = require('./userChatsController');
 
+console.log('userChatsController inside userChatsRoutes', userChatsController);
+
 module.exports = function(router){
   // router.post('/', chatController.createChat);
 
@@ -11,6 +13,6 @@ module.exports = function(router){
 
   router.post('/addNewPubChat', userChatsController.addNewPubChat);
 
-  router.get('/getAllUserChats', userChatsController.getAllUserChats);
+  router.post('/getAllUserChats', userChatsController.getAllUserChats);
 
 };

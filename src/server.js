@@ -13,6 +13,7 @@ mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/chatservices')
 var chatRouter = express.Router();
 var userChatsRouter = express.Router();
 
+
 //////////////////////////////////
 // use middleware and hook up routes
 //////////////////////////////////
@@ -26,7 +27,7 @@ app.use('/api/chat', chatRouter);
 app.use('/api/userChats', userChatsRouter);
 
 require('./chat/chatRoutes')(chatRouter);
-require('./userChats/userChatsRoutes')(chatRouter);
+require('./userChats/userChatsRoutes')(userChatsRouter);
 
 
 // TODO, set up error logging middleware

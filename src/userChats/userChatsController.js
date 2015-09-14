@@ -1,15 +1,20 @@
 var UserChats = require('./userChatsModel');
 var _ = require('underscore');
 
+console.log('inside userChatsCotroller.js');
+
 module.exports = {
   getAllUserChats: function(req, res, next) {
+    console.log('inside getAllUserChats function');
+    console.log('req.body.userId:', req.body.userId);
+
     var userId = req.body.userId;
     
     if(!userId) {
       res.sendStatus(400);
       return;
     }
-    User.findOne({ userId: userId })
+    UserChats.findOne({ userId: userId })
       .then(function(user) {
         if(user){
           res.status(200).send(user);
@@ -17,8 +22,8 @@ module.exports = {
         } else {
           var newUser = new UserChats();
           newUser.userId = userId;
-          // newUser.chatId_all = [];
-          // nwerUser.chatId_private = [];
+          newUser.chatId_all = [];
+          newUser.chatId_private = [];
           newUser.save().then(function(newUser) {
             res.status(201).send(newUser);
             next(newUser);
