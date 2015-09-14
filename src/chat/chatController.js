@@ -2,6 +2,46 @@ var Chat = require('./chatModel');
 var _ = require('underscore');
 
 module.exports = {
+
+  openPrivChat: function(req, res, next) {
+    var chatData = req.body.chatData;
+    console.log(chatData);
+    if(!chatData) {
+      console.log('chatData is undefined');
+      res.sendStatus(400).json({error:"Bad Request"});
+      return;
+    } else {
+      var chatId = req.body.chatId;
+      var firstSender = req.body.firstSender;
+      var participants = req.body.participants; //both names here
+
+    }
+  },
+  //create private chat and create public chat (separate)
+  createGroupChat: function(req, res, next) {
+    var chatData = req.body.chatData;
+    console.log(chatData);
+    if(!chatData) {
+      console.log('chatData is undefined');
+      res.sendStatus(400).json({error: "Bad Request"});
+      return;
+    } else {
+      var chatId = req.body.firstSender + req.body.timestamp_created;
+      var firstSender = req.body.firstSender;
+      var timestamp_created = req.body.timestamp_created;
+      var timestamp_updated = req.body.timestamp_updated; //
+      var participants = req.body.participants;
+      var messages = req.body.messages; //
+      if(Array.isArray(participants) && participants.length > 1) {
+        var group = true;
+      } else {
+        var group = false;
+      }
+    }
+
+
+  },   
+
   sendMessage: function(req, res, next) {
     var messageData = req.body.messageData;
 
@@ -10,12 +50,11 @@ module.exports = {
       res.sendStatus(400).json({error: "Bad Request"});
       return;
     } else {
-      var messageId = req.body.messageId;
+      // var messageId = req.body.messageId;
       var author = req.body.author;
+      var timestamp_created = req.body.timestamp_created;
       var message = req.body.message;
-      var timestamp_created: req.body.timestamp_created;
-      var timestamp_updated: req.body.timestamp_updated;
-      
+
     }
 
     Chat.findOne({ messageId: messageData.id })
@@ -31,7 +70,7 @@ module.exports = {
       })
   },
 
-  getMessage: function(req, res, next) {
+  getChat: function(req, res, next) {
     console.log('inside getMessage in chatController.js');
   }
 };

@@ -10,17 +10,24 @@ var bodyParser = require('body-parser');
 //////////////////////////////////
 mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/chatservices');
 
+var chatRouter = express.Router();
+var userChatsRouter = express.Router();
 
 //////////////////////////////////
 // use middleware and hook up routes
 //////////////////////////////////
 // var chatRouter = express.Router();
 
-// app.use(cors());
-// app.use(morgan('dev'));
-// app.use(bodyParser.json());
+app.use(cors());
+app.use(morgan('dev'));
+app.use(bodyParser.json());
 
-// app.use('/api/chat', chatRouter);
+app.use('/api/chat', chatRouter);
+app.use('/api/userChats', userChatsRouter);
+
+require('./chat/chatRoutes')(chatRouter);
+require('./userChats/userChatsRoutes')(chatRouter);
+
 
 // TODO, set up error logging middleware
 // app.use(helpers.errorLogger);
