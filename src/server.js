@@ -4,6 +4,34 @@ var mongoose = require('mongoose');
 var cors = require('cors');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+
+///////////////////////////////////////
+// socket connection with MobileFacade
+///////////////////////////////////////
+io.on('connection', function (socket) {
+  console.log('connected to socket')
+  socket.emit('testing1', { hello: 'world' });
+  socket.on('testing2', function (data) {
+    console.log('socket.on "testing2"');
+    console.log(data);
+  });
+
+
+  socket.on('clicked on facebook', function() {
+    console.log('user pressed on facebook');
+    socket.emit('facebook listener');
+  });
+
+  socket.on('write message to db', function(data) {
+    console.log('data to be written to db ---------------------------->',data)
+  })
+});
+
+
+
 
 //////////////////////////////////
 // connect w/ db
@@ -40,8 +68,10 @@ require('./userChats/userChatsRoutes')(userChatsRouter);
 //////////////////////////////////
 // start server
 //////////////////////////////////
-var server = app.listen(process.env.PORT || 3003, function (){
+var server = http.listen(process.env.PORT || 3003, function (){
   console.log('ChatServices listening on', server.address().address, server.address().port);
 });
 
 module.exports = app;
+
+

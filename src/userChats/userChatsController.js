@@ -1,7 +1,7 @@
 var UserChats = require('./userChatsModel');
 var _ = require('underscore');
 
-console.log('inside userChatsCotroller.js');
+// console.log('inside userChatsCotroller.js');
 
 module.exports = {
   getAllUserChats: function(req, res, next) {

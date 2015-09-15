@@ -1,6 +1,6 @@
 var userChatsController = require('./userChatsController');
 
-console.log('userChatsController inside userChatsRoutes', userChatsController);
+// console.log('userChatsController inside userChatsRoutes', userChatsController);
 
 module.exports = function(router){
   // router.post('/', chatController.createChat);
