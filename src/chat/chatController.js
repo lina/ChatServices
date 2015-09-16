@@ -3,20 +3,20 @@ var _ = require('underscore');
 
 module.exports = {
 
-  openPrivChat: function(req, res, next) {
-    var chatData = req.body.chatData;
-    console.log(chatData);
-    if(!chatData) {
-      console.log('chatData is undefined');
-      res.sendStatus(400).json({error:"Bad Request"});
-      return;
-    } else {
-      var chatId = req.body.chatId;
-      var firstSender = req.body.firstSender;
-      var participants = req.body.participants; //both names here
+  // openPrivChat: function(req, res, next) {
+  //   var chatData = req.body.chatData;
+  //   console.log(chatData);
+  //   if(!chatData) {
+  //     console.log('chatData is undefined');
+  //     res.sendStatus(400).json({error:"Bad Request"});
+  //     return;
+  //   } else {
+  //     var chatId = req.body.chatId;
+  //     var firstSender = req.body.firstSender;
+  //     var participants = req.body.participants; //both names here
 
-    }
-  },
+  //   }
+  // },
   //create private chat and create public chat (separate)
   createGroupChat: function(req, res, next) {
     var chatData = req.body.chatData;
