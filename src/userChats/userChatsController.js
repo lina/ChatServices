@@ -4,6 +4,86 @@ var _ = require('underscore');
 // console.log('inside userChatsCotroller.js');
 
 module.exports = {
+  socketAddNewPrivChat: function(chatID, participantIDs) {
+    console.log('ATTEMPTING TO ADD NEW PRIVATE CHAT!');
+    console.log('chatID:', chatID);
+    console.log('participantIDs:', participantIDs);
+    if(chatID && participantIDs) {    
+      if(participantIDs.length === 2) {
+        var chatId = chatID;
+        for (var i =0 ; i < participantIDs.length; i++) {
+          var userId = participantIDs[i];
+          console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% userId:', userId);
+          UserChats.findOne({userId: userId}, function(err, model) {
+            if(model) {
+              console.log('model found when trying to add chatId, model:', model);
+              for (var j = 0 ; j < participantIDs.length; j++) {
+                if(i !== j) {
+                  var partnerId = participantIDs[j];
+                  var tempObject = {};
+                  tempObject[partnerId] = chatId;
+                  model.chatId_private.push(tempObject);
+                }
+              } // for loop
+              for (var i = 0 ; i < model.chatId_all.length; i++) {
+                if(model.chatId_all[i] === chatId) {
+                  return;
+                }
+              }
+              model.chatId_all.push(chatId);
+              model.save(function(err) {
+                if(err) {
+                  var response = {error: 'Unable to save chat'};
+                  // res.status(500).json(response);
+                } else {
+                  console.log('added chat details to user entry in db');
+                  // res.status(201).send();
+                }
+              })
+              console.log('user does exist');
+              // res.status(201).send();
+            } else {
+              console.log("couldn't find userId in usermodel... something is wrong. check userController.js")
+            } // if (model)
+          }) // userChats.findOne   
+        } // for loop
+      }
+    }
+  },
+
+  addNewPrivChat: function(req, res, next) {
+    console.log('received request to add new private chat');
+    if(!req.body) {
+      return res.status(400).json({error:"Bad Request"});
+    } else {
+      var chatId = req.body.chatId;
+      var partnerId = req.body.author;
+      var userId = req.body.userId;
+      UserChats.findOne({userId: userId}, function(err, model) {
+        if(model) {
+          console.log('model found when trying to add chatId, model:', model);
+          model.chatId_private.push({partnerId: chatId})
+          model.chatId_all.push(chatId);
+          model.save(function(err) {
+            if(err) {
+              var response = {error: 'Unable to save chat'};
+              res.status(500).json(response);
+            } else {
+              console.log('added chat details to user entry in db');
+              res.status(201).send();
+            }
+          })
+          console.log('user does exist');
+          res.status(201).send();
+        } else {
+          console.log("couldn't find userId in usermodel... something is wrong. check userController.js")
+        }
+      })
+    }
+  },
+
+
+
   getAllUserChats: function(req, res, next) {
     console.log('inside getAllUserChats function');
     console.log('req.body.userId:', req.body.userId);

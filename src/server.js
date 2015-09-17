@@ -6,6 +6,7 @@ var morgan = require('morgan');
 var bodyParser = require('body-parser');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var chatController = require('./chat/chatController');
 
 
 ///////////////////////////////////////
@@ -25,9 +26,12 @@ io.on('connection', function (socket) {
     socket.emit('facebook listener');
   });
 
-  socket.on('write message to db', function(data) {
-    console.log('data to be written to db ---------------------------->',data)
+  socket.on('save message to database', function(data) {
+    console.log('inside "socket.on "save message to database""');
+    console.log('received data to write to database, data:', data);
+    chatController.writeMessageToDatabase(data);
   })
+
 });
 
 
@@ -73,5 +77,4 @@ var server = http.listen(process.env.PORT || 3003, function (){
 });
 
 module.exports = app;
-
 

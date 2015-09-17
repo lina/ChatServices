@@ -6,7 +6,8 @@ module.exports = function(router){
   router.post('/sendMessage', chatController.sendMessage);
 
   router.get('/:chatId', chatController.getChat);
-
+  
+  router.post('/getChatDetails', chatController.getChatDetails);
   // router.post('/addPrivChat', userController.addNewPrivChat);
 
   // router.post('/addNewPubChat', userController.addNewPubChat);
