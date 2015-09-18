@@ -18,12 +18,12 @@ module.exports = {
             if(model) {
               console.log('model found when trying to add chatId, model:', model);
               for (var j = 0 ; j < participantIDs.length; j++) {
-                if(i !== j) {
+                // if(i !== j) {
                   var partnerId = participantIDs[j];
                   var tempObject = {};
                   tempObject[partnerId] = chatId;
                   model.chatId_private.push(tempObject);
-                }
+                // }
               } // for loop
               for (var i = 0 ; i < model.chatId_all.length; i++) {
                 if(model.chatId_all[i] === chatId) {
