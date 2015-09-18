@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var chatController = require('./chat/chatController');
+var userChatsController = require('./userChats/userChatsController');
 
 
 ///////////////////////////////////////
@@ -30,7 +31,9 @@ io.on('connection', function (socket) {
     console.log('inside "socket.on "save message to database""');
     console.log('received data to write to database, data:', data);
     chatController.writeMessageToDatabase(data);
-  })
+  });
+
+  
 
 });
 
