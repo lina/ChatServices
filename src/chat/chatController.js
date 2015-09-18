@@ -6,7 +6,37 @@ var UserChats = require('../userChats/userChatsModel');
 
 module.exports = {
 
-  // createConversation: function()
+  // XXXXX new code
+  createConversation: function(messageData) {
+    Chat.conversation.findOne({ chatId: messageData.chatId})
+    .then(function(conversation) {
+      if(messageData) {
+        if(!conversation) {
+          userChatsController.socketAddNewPrivChat(messageData.chatId, messageData.participants);
+          console.log('conversation not found, creating new conversation');
+          var newConversation = new Chat.conversation();
+          console.log('messageData.chatId', messageData.chatId);
+          newConversation.chatId = messageData.chatId;
+          newConversation.firstSender = messageData.firstSender;
+          newConversation.timestamp_created = messageData.timestamp_updated;
+          newConversation.participants = messageData.participants;
+          newConversation.group = messageData.group;
+          newConversation.save(function(err) {
+            if(err) {
+              console.log('unable to create new conversation');
+              console.log('err:', err);
+            } else {
+              console.log('saved new conversation')
+            }
+          })
+
+        } else {
+          console.log('conversation exists. do not create new conversation')
+        }
+        
+      }
+    })
+  },
 
   writeMessageToDatabase: function(messageData) {
     Chat.conversation.findOne({ chatId: messageData.conversationId })
@@ -22,7 +52,6 @@ module.exports = {
       }
 
       console.log('------------>conversationId', messageData.conversationId)
-      userChatsController.socketAddNewPrivChat(messageData.conversationId, messageParticipants);
 
       console.log('should be true (is it Array? inside chatController):', Array.isArray(messageParticipants));
       if(messageData) {
