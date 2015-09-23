@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var chatController = require('./chat/chatController');
-// var userChatsController = require('./userChats/userChatsController');
+var userChatsController = require('./userChats/userChatsController');
 
 
 ///////////////////////////////////////
@@ -36,6 +36,18 @@ io.on('connection', function (socket) {
   socket.on('create new conversation in database', function(conversationData) {
     console.log('inside socket.on "create new conversation in database"');
     chatController.createConversation(conversationData);
+  });
+
+  socket.on('add participant to conversation', function(messageData) {
+    console.log('inside socket.on "add participant to conversation"');
+    chatController.addedParticipant(messageData);
+  });
+
+  socket.on('add public chat to participant storage', function(chatID, participatingUsers) {
+    console.log('add public chat to participant storage .on socket');
+    for (var i = 0 ; i < participatingUsers.length; i++) {
+      userChatsController.addPublicChatforUser(chatID, participatingUsers[i]);
+    }
   })
 
 

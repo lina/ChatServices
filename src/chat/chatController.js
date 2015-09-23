@@ -5,7 +5,15 @@ var UserChats = require('../userChats/userChatsModel');
 
 
 module.exports = {
-
+  addedParticipant: function(messageData) {
+    Chat.conversation.findOne({ chatId: messageData.chatId })
+    .then(function(conversation) {
+      if(conversation) {
+        console.log('ADDING NEW PARTICIPANT TO CONVERSATION!');
+        conversation.participants.push(messageData.newParticipantId);
+      }
+    })
+  },
   // XXXXX new code
   createConversation: function(messageData) {
     Chat.conversation.findOne({ chatId: messageData.chatId})

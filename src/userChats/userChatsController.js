@@ -146,6 +146,31 @@ module.exports = {
     }
   },
 
+  addPublicChatforUser: function(userId, chatId) {
+    console.log('received request to add new public chat to userID:', userId);
+    if(!userId) {
+      return 'no user id';
+    } else {
+      UserChats.findOne({userId: UserId}, function(err, model) {
+        if(model) {
+          console.log('model found when trying to add chatId, model:', model);
+          model.chatId_all.push(chatId);
+          model.save(function(err) {
+            if (err) {
+              console.log('unable to save chat');
+              console.log('error:', err);
+            } else {
+              console.log('added public chat id to user entry in db');
+            }
+          })
+          console.log('user exists and found');
+        } else {
+          console.log("couldn't find userId in usermodel... something is wrong, maybe user doesn't exist.")  
+        }
+      })
+    }
+  },
+
   addNewPubChat: function(req, res, next) {
     console.log('received request to add new public chat');
     if(!req.body) {
