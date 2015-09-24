@@ -3,27 +3,27 @@ var _ = require('underscore');
 var userChatsController = require('../userChats/userChatsController')
 var UserChats = require('../userChats/userChatsModel');
 
-
 module.exports = {
+  // Adding new participant to an existing conversation
   addedParticipant: function(messageData) {
     Chat.conversation.findOne({ chatId: messageData.chatId })
     .then(function(conversation) {
       if(conversation) {
-        console.log('ADDING NEW PARTICIPANT TO CONVERSATION!');
         conversation.participants.push(messageData.newParticipantId);
       }
     })
   },
-  // XXXXX new code
+
+  // Creating a new conversation and saving it to db.
   createConversation: function(messageData) {
     Chat.conversation.findOne({ chatId: messageData.chatId})
     .then(function(conversation) {
       if(messageData) {
+
+        // if conversation doesn't exist, then create a new conversation and save the associated properties 
         if(!conversation) {
           userChatsController.socketAddNewPrivChat(messageData.chatId, messageData.participants);
-          console.log('conversation not found, creating new conversation');
           var newConversation = new Chat.conversation();
-          console.log('messageData.chatId', messageData.chatId);
           newConversation.chatId = messageData.chatId;
           newConversation.firstSender = messageData.firstSender;
           newConversation.timestamp_created = messageData.timestamp_updated;
@@ -46,22 +46,22 @@ module.exports = {
     })
   },
 
+  // Saves a new message to a conversation (could be an existing or new conversation)
   writeMessageToDatabase: function(messageData) {
     Chat.conversation.findOne({ chatId: messageData.conversationId })
     .then(function(conversation) {
       console.log("we're writing message to database, yay!");
       console.log('messageData', messageData);
       var messageParticipants;
+
+      // Creates an array of message participants to save into new message schema 
       if(messageData.messageParticipants) {
         messageParticipants = Object.keys(messageData.messageParticipants);
       } else {
         messageParticipants = [];
-        console.log('no message participants defined, messageParticipants:', messageParticipants);
       }
 
-      console.log('------------>conversationId', messageData.conversationId)
-
-      console.log('should be true (is it Array? inside chatController):', Array.isArray(messageParticipants));
+      // Create a message Schema and save message to message Schema
       if(messageData) {
         var newMessage = new Chat.message();
         newMessage.senderID = messageData.senderId;
@@ -79,10 +79,11 @@ module.exports = {
           }
         });
       } else {
-        console.log('message Data is void............');
+        console.log('messageData is undefined');
       }
+
+      // Save newly created message Schema to an existing conversation schema in database.
       if(conversation) {
-        console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% conversation exists in database, adding message to conversation");
         conversation.timestamp_updated = messageData.messageTime;
         newMessage.messageParticipants = messageParticipants;
         conversation.messages.push(newMessage);
@@ -94,16 +95,12 @@ module.exports = {
             var response = {error: 'Unable to save chat'};
             console.log(response.error);
             console.log('err', err);
-            // res.status(500).json(response);
-
           } else {
             console.log('added new message in conversation');
-            // res.status(201).send();
           }
         });
-
+      // Creates a new conversation schema and save newly created message Schema to the new convo Schema
       } else {
-        console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% conversation didn't exist before, adding conversation to database")
         var conversation = new Chat.conversation();
         conversation.chatId = messageData.conversationId;
         conversation.firstSender = messageData.senderId;
@@ -118,38 +115,33 @@ module.exports = {
             var response = {error: 'Unable to save chat'};
             console.log(response.error);
             console.log('err', err);
-            // res.status(500).json(response);
-
           } else {
             console.log('added new message in conversation');
-            // res.status(201).send();
           }
         });
       }
     })
   },
 
+  // Retrieve conversations for given chatIDs (post request done when user first logs on and system needs to retrieve all of the current user's past conversation)
   getChatDetails: function(req, res, next) {
-    console.log('inside getChatDetails function');
-    console.log('------------------------------------>req.body',req.body);
-    console.log('-----------------------------end of req.body--------------------- ')
     var userChats = req.body.chatIDs;
-    console.log('---------------->userChats', userChats);
     if(!userChats) {
       res.sendStatus(400);
       return;
     }
 
+    // Create an array to store all conversations. 
     var allConversations = [];
     for (var i = 0 ; i < userChats.length; i++) {
       var currChatId = userChats[i];
-      console.log('---------------->currChatId', currChatId);
       Chat.conversation.findOne({chatId: currChatId})
       .then(function(conversation) {
-        console.log('---------------->conversation', conversation);
         if(conversation) {
           allConversations.push(conversation);
         }
+
+        // If all conversations have been retrieved, then send it back to client.
         if(allConversations.length === userChats.length) {
           res.status(200).send(allConversations); 
         }
@@ -158,104 +150,7 @@ module.exports = {
         next(err);
       })
     }
-
-
-    // Chat.conversation.findOne({'chatId': { $in: chatIDs}})
-    // .then(function(chatDetails) {
-    //   if(chatDetails) {
-    //     res.status(200).send(chatDetails);
-    //     next(chatDetails);
-    //   } 
-    // }.bind(this)).catch(function(err) {
-    //   res.status(500).send(err);
-    //   next(err);
-    // });
-
-
-
-    // Chat.find({}, function(err, userChats) {
-
-    // })
-    // for (var)
-  },
-  // openPrivChat: function(req, res, next) {
-  //   var chatData = req.body.chatData;
-  //   console.log(chatData);
-  //   if(!chatData) {
-  //     console.log('chatData is undefined');
-  //     res.sendStatus(400).json({error:"Bad Request"});
-  //     return;
-  //   } else {
-  //     var chatId = req.body.chatId;
-  //     var firstSender = req.body.firstSender;
-  //     var participants = req.body.participants; //both names here
-
-  //   }
-  // },
-  //create private chat and create public chat (separate)
-  createGroupChat: function(req, res, next) {
-    var chatData = req.body.chatData;
-    console.log(chatData);
-    if(!chatData) {
-      console.log('chatData is undefined');
-      res.sendStatus(400).json({error: "Bad Request"});
-      return;
-    } else {
-      var chatId = req.body.firstSender + req.body.timestamp_created;
-      var firstSender = req.body.firstSender;
-      var timestamp_created = req.body.timestamp_created;
-      var timestamp_updated = req.body.timestamp_updated; //
-      var participants = req.body.participants;
-      var messages = req.body.messages; //
-      if(Array.isArray(participants) && participants.length > 1) {
-        var group = true;
-      } else {
-        var group = false;
-      }
-    }
-
-
-  },   
-
-  sendMessage: function(req, res, next) {
-    var messageData = req.body.messageData;
-
-    if(!messageData) {
-      console.log('messageData is undefined')
-      res.sendStatus(400).json({error: "Bad Request"});
-      return;
-    } else {
-      // var messageId = req.body.messageId;
-      var author = req.body.author;
-      var timestamp_created = req.body.timestamp_created;
-      var message = req.body.message;
-
-    }
-
-    Chat.findOne({ messageId: messageData.id })
-      .then(function(message) {
-        console.log(' inside chatControllers sendMessage function')
-        console.log('----------->message inside chatController', message)
-        if(message) {
-          res.status(200).send(user);
-          next(user);
-        } else {
-
-        }
-      })
-  },
-
-  getChat: function(req, res, next) {
-    console.log('inside getMessage in chatController.js');
   }
 };
 
-// var ChatSchema = new mongoose.Schema({
-//   messageId: String,
-//   author: String,
-//   message: String,
-//   timestamp_created: {type:Date, default: Date.now},
-//   timestamp_updated: {type:Date, default: Date.now},
-//   participant: Array,
-//   group: Boolean
-// })
+// leave extra line at end

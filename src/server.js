@@ -10,66 +10,40 @@ var chatController = require('./chat/chatController');
 var userChatsController = require('./userChats/userChatsController');
 
 
-///////////////////////////////////////
-// socket connection with MobileFacade
-///////////////////////////////////////
+// Socket connection with MobileFacade
 io.on('connection', function (socket) {
-  console.log('connected to socket')
-  socket.emit('testing1', { hello: 'world' });
-  socket.on('testing2', function (data) {
-    console.log('socket.on "testing2"');
-    console.log(data);
-  });
 
-
-  socket.on('clicked on facebook', function() {
-    console.log('user pressed on facebook');
-    socket.emit('facebook listener');
-  });
-
+  // Listens for events from client for messages to store in database
   socket.on('save message to database', function(data) {
-    console.log('inside "socket.on "save message to database""');
-    console.log('received data to write to database, data:', data);
     chatController.writeMessageToDatabase(data);
   });
 
+  // Listens for events from client to save a new conversation to the database
   socket.on('create new conversation in database', function(conversationData) {
-    console.log('inside socket.on "create new conversation in database"');
     chatController.createConversation(conversationData);
   });
 
+  // Listens for events to add participants to database that stores all the conversations
   socket.on('add participant to conversation', function(messageData) {
-    console.log('inside socket.on "add participant to conversation"');
     chatController.addedParticipant(messageData);
   });
 
+  // Listens for events to add chat to participant's chat storage
   socket.on('add public chat to participant storage', function(chatID, participatingUsers) {
-    console.log('add public chat to participant storage .on socket');
     for (var i = 0 ; i < participatingUsers.length; i++) {
       userChatsController.addPublicChatforUser(chatID, participatingUsers[i]);
     }
-  })
-
-
+  });
 });
 
-
-
-
-//////////////////////////////////
-// connect w/ db
-//////////////////////////////////
+// connect with mongoDB
 mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/chatservices');
 
+// Router variable declaration
 var chatRouter = express.Router();
 var userChatsRouter = express.Router();
 
-
-//////////////////////////////////
-// use middleware and hook up routes
-//////////////////////////////////
-// var chatRouter = express.Router();
-
+// uses middleware and hook up routes
 app.use(cors());
 app.use(morgan('dev'));
 app.use(bodyParser.json());
@@ -80,20 +54,11 @@ app.use('/api/userChats', userChatsRouter);
 require('./chat/chatRoutes')(chatRouter);
 require('./userChats/userChatsRoutes')(userChatsRouter);
 
-
-// TODO, set up error logging middleware
-// app.use(helpers.errorLogger);
-// app.use(helpers.errorHandler);
-
-// require('./chat/chatRoutes')(chatRouter);
-
-
-//////////////////////////////////
-// start server
-//////////////////////////////////
+// Listen to server
 var server = http.listen(process.env.PORT || 3003, function (){
   console.log('ChatServices listening on', server.address().address, server.address().port);
 });
 
 module.exports = app;
 
+// Leave empty line at the end
